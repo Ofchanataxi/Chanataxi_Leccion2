@@ -2,7 +2,7 @@ package ec.edu.espe.chanataxi_leccion2.controllers;
 
 import ec.edu.espe.chanataxi_leccion2.models.entities.PurchaseOrder;
 import ec.edu.espe.chanataxi_leccion2.services.PurchaseOrderService;
-import jakarta.validation.Valid; // IMPORTANTE
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,13 +19,10 @@ public class PurchaseOrderController {
     private PurchaseOrderService service;
 
     @PostMapping
-    // @Valid: Activa las validaciones de la entidad (@NotBlank, @Pattern, etc.)
-    // Si falla, Spring lanza automáticamente una MethodArgumentNotValidException (devuelve 400)
     public ResponseEntity<?> create(@Valid @RequestBody PurchaseOrder purchaseOrder) {
         try {
             return ResponseEntity.ok(service.createPurchaseOrder(purchaseOrder));
         } catch (IllegalArgumentException e) {
-            // Capturamos excepciones de negocio propias (como ID duplicado)
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }

@@ -69,11 +69,9 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
             if (status != null) predicates.add(cb.equal(root.get("status"), status));
             if (currency != null) predicates.add(cb.equal(root.get("currency"), currency));
 
-            // Filtros de rango numérico
             if (minTotal != null) predicates.add(cb.greaterThanOrEqualTo(root.get("totalAmount"), minTotal));
             if (maxTotal != null) predicates.add(cb.lessThanOrEqualTo(root.get("totalAmount"), maxTotal));
 
-            // Filtros de rango de fecha
             if (from != null) predicates.add(cb.greaterThanOrEqualTo(root.get("createdAt"), from));
             if (to != null) predicates.add(cb.lessThanOrEqualTo(root.get("createdAt"), to));
 

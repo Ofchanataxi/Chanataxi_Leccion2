@@ -1,7 +1,7 @@
 package ec.edu.espe.chanataxi_leccion2.models.entities;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*; // Importamos las validaciones
+import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,7 +20,6 @@ public class PurchaseOrder {
     @NotBlank(message = "El nombre del proveedor es obligatorio")
     private String supplierName;
 
-    // Validación de Status con expresión regular
     @Pattern(regexp = "DRAFT|SUBMITTED|APPROVED|REJECTED|CANCELLED",
             message = "Estado inválido. Valores permitidos: DRAFT, SUBMITTED, APPROVED, REJECTED, CANCELLED")
     private String status;
@@ -29,7 +28,6 @@ public class PurchaseOrder {
     @DecimalMin(value = "0.0", inclusive = true, message = "El monto total no puede ser negativo")
     private BigDecimal totalAmount;
 
-    // Validación de Moneda
     @Pattern(regexp = "USD|EUR", message = "Moneda inválida. Solo se permite USD o EUR")
     private String currency;
 
