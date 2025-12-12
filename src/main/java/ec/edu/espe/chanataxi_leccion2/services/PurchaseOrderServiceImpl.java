@@ -27,12 +27,7 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
         if (repository.existsByOrderNumber(purchaseOrder.getOrderNumber())) {
             throw new IllegalArgumentException("El orderNumber " + purchaseOrder.getOrderNumber() + " ya existe.");
         }
-        if (purchaseOrder.getStatus() != null && !ALLOWED_STATUS.contains(purchaseOrder.getStatus())) {
-            throw new IllegalArgumentException("Status inválido. Permitidos: " + ALLOWED_STATUS);
-        }
-        if (purchaseOrder.getCurrency() != null && !ALLOWED_CURRENCY.contains(purchaseOrder.getCurrency())) {
-            throw new IllegalArgumentException("Currency inválido. Permitidos: " + ALLOWED_CURRENCY);
-        }
+
         return repository.save(purchaseOrder);
     }
 
@@ -41,18 +36,25 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                                                  BigDecimal minTotal, BigDecimal maxTotal,
                                                  LocalDateTime from, LocalDateTime to) {
 
-        // Validaciones
         if (status != null && !ALLOWED_STATUS.contains(status)) {
             throw new IllegalArgumentException("Status inválido para filtro. Permitidos: " + ALLOWED_STATUS);
         }
+
         if (currency != null && !ALLOWED_CURRENCY.contains(currency)) {
             throw new IllegalArgumentException("Currency inválido para filtro. Permitidos: " + ALLOWED_CURRENCY);
         }
+
+        if (minTotal != null && minTotal.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("El minTotal no puede ser negativo");
+        }
+        if (maxTotal != null && maxTotal.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("El maxTotal no puede ser negativo");
+        }
+
         if (from != null && to != null && from.isAfter(to)) {
             throw new IllegalArgumentException("La fecha 'from' no puede ser mayor que 'to'");
         }
 
-        // Specification
         Specification<PurchaseOrder> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
@@ -63,10 +65,15 @@ public class PurchaseOrderServiceImpl implements PurchaseOrderService {
                         cb.like(cb.lower(root.get("supplierName")), likePattern)
                 ));
             }
+
             if (status != null) predicates.add(cb.equal(root.get("status"), status));
             if (currency != null) predicates.add(cb.equal(root.get("currency"), currency));
+
+            // Filtros de rango numérico
             if (minTotal != null) predicates.add(cb.greaterThanOrEqualTo(root.get("totalAmount"), minTotal));
             if (maxTotal != null) predicates.add(cb.lessThanOrEqualTo(root.get("totalAmount"), maxTotal));
+
+            // Filtros de rango de fecha
             if (from != null) predicates.add(cb.greaterThanOrEqualTo(root.get("createdAt"), from));
             if (to != null) predicates.add(cb.lessThanOrEqualTo(root.get("createdAt"), to));
 

@@ -1,6 +1,7 @@
 package ec.edu.espe.chanataxi_leccion2.models.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*; // Importamos las validaciones
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -13,25 +14,32 @@ public class PurchaseOrder {
     private Long id;
 
     @Column(unique = true, nullable = false)
+    @NotBlank(message = "El número de orden es obligatorio")
     private String orderNumber;
 
+    @NotBlank(message = "El nombre del proveedor es obligatorio")
     private String supplierName;
 
-    // Se guardará como String, pero validaremos los valores en el servicio/controlador
+    // Validación de Status con expresión regular
+    @Pattern(regexp = "DRAFT|SUBMITTED|APPROVED|REJECTED|CANCELLED",
+            message = "Estado inválido. Valores permitidos: DRAFT, SUBMITTED, APPROVED, REJECTED, CANCELLED")
     private String status;
 
+    @NotNull(message = "El monto total es obligatorio")
+    @DecimalMin(value = "0.0", inclusive = true, message = "El monto total no puede ser negativo")
     private BigDecimal totalAmount;
 
+    // Validación de Moneda
+    @Pattern(regexp = "USD|EUR", message = "Moneda inválida. Solo se permite USD o EUR")
     private String currency;
 
     private LocalDateTime createdAt;
 
+    @NotNull(message = "La fecha esperada de entrega es obligatoria")
     private LocalDate expectedDeliveryDate;
 
-    // Constructor vacío para JPA
     public PurchaseOrder() {}
 
-    // Getters y Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -56,7 +64,6 @@ public class PurchaseOrder {
     public LocalDate getExpectedDeliveryDate() { return expectedDeliveryDate; }
     public void setExpectedDeliveryDate(LocalDate expectedDeliveryDate) { this.expectedDeliveryDate = expectedDeliveryDate; }
 
-    // Método Lifecycle para asignar fecha de creación automáticamente antes de guardar
     @PrePersist
     public void prePersist() {
         if(this.createdAt == null) {
